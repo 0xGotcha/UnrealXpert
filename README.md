@@ -3,6 +3,10 @@
 🚀 **UnrealXpert** is an **IDA Pro 9.0 Beta plugin** that automates common reverse engineering tasks using **rule-based searches**. The plugin enables flexible **binary pattern searches, string analysis, immediate value lookups, function parameter filtering, and pseudocode execution tracing**.
 
 ---
+![image](https://github.com/user-attachments/assets/feeeff00-21aa-4fd4-8c1a-f01a842fcc7a)
+
+
+---
 
 ## 📥 Installation
 ### **1. Download and Install the Plugin**
