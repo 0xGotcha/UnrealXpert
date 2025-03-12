@@ -1,0 +1,28 @@
+[
+    {
+        "name": "PostRender::DrawTransition",
+        "version": "4.26",
+        "steps": [
+            { "type": "string", "value": "LoadingMessage" },
+            { "type": "xref" },
+            { "type": "param_count", "count": 2 }
+        ]
+    },
+    {
+        "name": "StaticFindObject",
+        "version": "4.26",
+        "steps": [
+            {
+                "type": "string",
+                "value": "MaterialShaderQualitySettingsContainer"
+            },
+            {
+                "type": "xref"
+            },
+            {
+                "type": "follow_pseudocode",
+                "depth": 3
+            }
+        ]
+    }
+]
