@@ -60,93 +60,104 @@ You define **rules** in `rules.json`, and the plugin **automatically executes th
 
 ---
 
-## 🛠 **Defining Rules (`rules.json`)**
-Rules are stored in `rules.json` and **support flexible execution orders**.
+## 📜 Creating Rules
+Rules are stored in a JSON file (`rules.json`) located in the **UnrealXpert plugin directory**. A rule consists of multiple steps that execute sequentially.
 
-### **Rule Format**
+Each rule must contain:
+- A **`name`** (to identify the rule).
+- A **`version`** (useful for organizing rules based on Unreal Engine versions).
+- A **`steps`** list, where each step performs an operation.
+
+## 📌 Supported Rule Steps
+
+| Step Type         | Description |
+|------------------|-------------|
+| `"string"` | Searches for a text string inside the binary. |
+| `"xref"` | Finds cross-references (XRefs) to a previously found address. |
+| `"binary_pattern"` | Searches for a specific byte pattern. |
+| `"immediate"` | Searches for an immediate (constant) value inside functions. |
+| `"param_count"` | Filters functions based on their parameter count. |
+| `"follow_pseudocode"` | Analyzes Hex-Rays pseudocode and follows function calls. |
+| `"qword_address"` | Extracts QWord addresses from pseudocode. |
+
+## 📌 Rule Example: Searching for a String and Following XRefs
+
 ```json
-[
-  {
-    "name": "Find AI Decision Function",
-    "version": "5.0",
-    "steps": [
-      { "type": "string", "value": "AI Decision Making" },
-      { "type": "xref" },
-      { "type": "param_count", "count": 2 }
-    ]
-  }
-]
-```
-### 🔹 **Supported Search Types**
-| Type              | Description |
-|-------------------|-------------|
-| `string`         | Search for a specific string. |
-| `binary_pattern` | Search using a **byte signature** (e.g., `48 8B ?? ?? ?? ?? ?? E8`). |
-| `immediate`      | Search for **immediate values** (e.g., `9.81`, `250.0`). |
-| `xref`           | Find **functions that reference** the previous result. |
-| `param_count`    | Filter functions by **number of parameters**. |
-| `follow_pseudocode` | Follow **Nth function call inside decompiled pseudocode**. |
-
----
-
-## 🚀 **Example Rules**
-### ✅ **Binary Search → XRef → Pseudocode**
-```json
-[
-  {
-    "name": "Trace Damage Calculation",
+{
+    "name": "StaticFindObject",
     "version": "4.26",
     "steps": [
-      { "type": "binary_pattern", "value": "F3 0F ?? ?? ?? ?? ?? ?? ?? ?? E8" },
-      { "type": "xref" },
-      { "type": "follow_pseudocode", "depth": 3 }
+        {
+            "type": "string",
+            "value": "MaterialShaderQualitySettingsContainer",
+            "exact_match": true
+        },
+        {
+            "type": "xref"
+        },
+        {
+            "type": "follow_pseudocode",
+            "depth": 3
+        }
     ]
-  }
-]
+}
 ```
-✔ **Finds the binary pattern**  
-✔ **Follows references**  
-✔ **Traces 3 function calls in pseudocode**  
 
----
+## 📌 Rule Example: Finding a QWord Reference
 
-### ✅ **String Search → XRef → Parameter Filter**
 ```json
-[
-  {
-    "name": "Identify Game Initialization",
-    "version": "5.0",
+{
+    "name": "FindQWordReference",
+    "version": "4.26",
     "steps": [
-      { "type": "string", "value": "Game Initialized" },
-      { "type": "xref" },
-      { "type": "param_count", "count": 3 },
-      { "type": "follow_pseudocode", "depth": 2 }
+        {
+            "type": "string",
+            "value": "SomeStringReference",
+            "exact_match": false
+        },
+        {
+            "type": "xref"
+        },
+        {
+            "type": "qword_address",
+            "depth": 2
+        }
     ]
-  }
-]
+}
 ```
-✔ **Finds `"Game Initialized"`**  
-✔ **Finds functions that reference it**  
-✔ **Filters functions with 3 parameters**  
-✔ **Follows execution 2 levels deep**  
 
----
+## 📌 Rule Example: Searching by Binary Pattern
 
-### ✅ **Immediate Value Search → Pseudocode**
 ```json
-[
-  {
-    "name": "Locate Gravity Modifier",
-    "version": "5.1",
+{
+    "name": "GetNamePlainString",
+    "version": "4.26",
     "steps": [
-      { "type": "immediate", "value": 9.81 },
-      { "type": "follow_pseudocode", "depth": 1 }
+        {
+            "type": "binary_pattern",
+            "value": "83 79 ? ? 74 ? 48 8B 01 C3 48 8D 05"
+        },
+        {
+            "type": "param_count",
+            "count": 3
+        }
     ]
-  }
-]
+}
 ```
-✔ **Finds constant `9.81` in functions**  
-✔ **Follows 1 function call deep in pseudocode**  
+
+## 📌 Additional Rule Configuration
+
+| Option           | Description |
+|----------------|-------------|
+| `"exact_match"` | (`true/false`) Used in `"string"` searches to enforce case-sensitive exact matches. |
+| `"depth"` | (`1,2,3,...`) Used in `"follow_pseudocode"` and `"qword_address"` to specify which function call or QWord reference to follow. |
+
+## 📌 How to Use the Rules
+
+1. **Create or edit `rules.json`** inside the `UnrealXpert` directory.
+2. **Launch IDA Pro** and **press `Shift+U`** to reload the plugin.
+3. **View results** in the UnrealXpert window, where matches appear in a table.
+4. **Click on an address** in the results table to jump to the disassembly.
 
 ---
 
